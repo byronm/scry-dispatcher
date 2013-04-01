@@ -1,6 +1,10 @@
+http    = require 'http'
 express = require 'express'
+io      = require 'socket.io'
 
 app = express()
+server = http.createServer(app)
+io.listen(server)
 
 class Dispatcher
   constructor: (@dmap = {}) ->
@@ -14,8 +18,14 @@ class Dispatcher
   get: (label) ->
     return @dmap[label] or []
 
+  remove: (label, conn) ->
+    @dmap[label] = @dmap[label].filter((elem) -> return elem != conn)
+
 dispatcher = new Dispatcher()
 
+################################################################################
+# HTTP Endpoints
+################################################################################
 app.all('/in', (req, res)->
   labels = req.param "labels", []
   dests = []
@@ -26,25 +36,31 @@ app.all('/in', (req, res)->
 
   for label in labels
     conns = dispatcher.get(label)
-    console.dir conns
     for conn in conns
       if not dests_contains(conn)
         dests.push(conn)
 
   for dest in dests
-    null
-    # dest.emit(req.params "obj")
-  res.json({dest: dests})
+    dest.emit('data', req.params "data")
+
+  res.json({status: 'ok'})
 )
 
-app.all('/register', (req, res)->
-  labels = req.param "labels", []
-  for label in labels
-    conn = {}
-    dispatcher.add(label, label)
-
-  res.json({})
+################################################################################
+# Websockets Endpoints
+################################################################################
+io.sockets.on('connection', (socket) ->
+  label_cache = []
+  socket.on('register', (labels) ->
+    label_cache = label_cache.concat(labels)
+    for label in labels
+      dispatcher.add(label, socket)
+  )
+  socket.on('disconnect', ->
+    for label in label_cache
+      dispatcher.remove(label, socket)
+  )
 )
 
-app.listen(3000)
+server.listen(3000)
 console.log "LISNIN' ON THE OL' 3000"
