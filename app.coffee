@@ -7,19 +7,19 @@ server = http.createServer(app)
 io.listen(server)
 
 class Dispatcher
-  constructor: (@dmap = {}) ->
+  constructor: (@connections = {}) ->
 
   add: (label, conn) ->
-    if not @dmap[label]
-      @dmap[label] = [conn]
+    if not @connections[label]
+      @connections[label] = [conn]
     else
-      @dmap[label].push(conn)
+      @connections[label].push(conn)
 
   get: (label) ->
-    return @dmap[label] or []
+    return @connections[label] or []
 
   remove: (label, conn) ->
-    @dmap[label] = @dmap[label].filter((elem) -> return elem != conn)
+    @connections[label] = @connections[label].filter((elem) -> return elem != conn)
 
 dispatcher = new Dispatcher()
 
