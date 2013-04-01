@@ -1,10 +1,9 @@
 http    = require 'http'
 express = require 'express'
-io      = require 'socket.io'
 
 app = express()
 server = http.createServer(app)
-io.listen(server)
+io = require('socket.io').listen(server)
 
 class Dispatcher
   constructor: (@dmap = {}) ->
@@ -41,7 +40,7 @@ app.all('/in', (req, res)->
         dests.push(conn)
 
   for dest in dests
-    dest.emit('data', req.params "data")
+    dest.emit('data', req.param "data")
 
   res.json({status: 'ok'})
 )
@@ -53,6 +52,7 @@ io.sockets.on('connection', (socket) ->
   label_cache = []
   socket.on('register', (labels) ->
     label_cache = label_cache.concat(labels)
+    console.dir label_cache
     for label in labels
       dispatcher.add(label, socket)
   )
