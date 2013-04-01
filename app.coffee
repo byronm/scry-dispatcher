@@ -4,6 +4,7 @@ express = require 'express'
 app = express()
 server = http.createServer(app)
 io = require('socket.io').listen(server)
+geoip = require('geoip-lite')
 
 class Dispatcher
   constructor: (@connections = {}) ->
@@ -27,6 +28,14 @@ dispatcher = new Dispatcher()
 ################################################################################
 app.all('/in', (req, res)->
   labels = req.param "labels", []
+  ip = req.param "ip", null
+  data = req.param "data", {}
+  geo = geoip.lookup(ip)
+  if geo
+    data.ll = geo.ll
+  else
+    res.send(500, {status: 'ip parameter missing or invalid'})
+    return
   dests = []
   dests_contains = (conn) ->
     for dest in dests
