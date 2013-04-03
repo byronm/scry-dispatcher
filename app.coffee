@@ -30,9 +30,13 @@ app.all('/in', (req, res)->
   labels = req.param "labels", []
   ip = req.param "ip", null
   data = req.param "data", {}
+  lat = req.param "lat", null
+  lng = req.param "lng", null
   geo = geoip.lookup(ip)
   if geo
     data.ll = geo.ll
+  else if lat and lng
+    data.ll = [lat, lng]
   else
     res.send(500, {status: 'ip parameter missing or invalid'})
     return
