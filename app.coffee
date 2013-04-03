@@ -53,7 +53,7 @@ app.all('/in', (req, res)->
         dests.push(conn)
 
   for dest in dests
-    dest.emit('data', req.param "data")
+    dest.emit('data', data)
 
   res.json({status: 'ok'})
 )
