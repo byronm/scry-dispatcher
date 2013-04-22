@@ -1,6 +1,8 @@
 http    = require 'http'
 express = require 'express'
 
+_ = require 'underscore'
+
 app = express()
 server = http.createServer(app)
 io = require('socket.io').listen(server)
@@ -44,7 +46,7 @@ app.all('/in', (req, res)->
   dests = []
   dest_from_conn = (conn) ->
     for dest in dests
-      return dest if dest == conn
+      return dest if dest.conn == conn
     return null
 
   for label in labels
@@ -57,7 +59,7 @@ app.all('/in', (req, res)->
         dest.labels.push(label)
 
   for dest in dests
-    dest.emit('data', _.extend({}, data, {labels: dest.labels}))
+    dest.conn.emit('data', _.extend({}, data, {labels: dest.labels}))
 
   res.json({status: 'ok'})
 )
