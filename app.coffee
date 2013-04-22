@@ -42,19 +42,22 @@ app.all('/in', (req, res)->
     return
 
   dests = []
-  dests_contains = (conn) ->
+  dest_from_conn = (conn) ->
     for dest in dests
-      return true if dest == conn
-    return false
+      return dest if dest == conn
+    return null
 
   for label in labels
     conns = dispatcher.get(label)
     for conn in conns
-      if not dests_contains(conn)
-        dests.push(conn)
+      dest = dest_from_conn(conn)
+      if not dest
+        dests.push({'conn': conn, 'labels': [label]})
+      else
+        dest.labels.push(label)
 
   for dest in dests
-    dest.emit('data', data)
+    dest.emit('data', _.extend({}, data, {labels: dest.labels}))
 
   res.json({status: 'ok'})
 )
