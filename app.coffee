@@ -69,6 +69,12 @@ io.sockets.on('connection', (socket) ->
     for label in labels
       dispatcher.add(label, socket)
   )
+
+  socket.on('deregister', (labels) ->
+    for label in labels
+      dispatcher.remove(label, socket)
+  )
+
   socket.on('disconnect', ->
     for label in label_cache
       dispatcher.remove(label, socket)
