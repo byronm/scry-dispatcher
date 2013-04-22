@@ -40,6 +40,7 @@ app.all('/in', (req, res)->
   else
     res.send(500, {status: 'ip parameter missing or invalid'})
     return
+
   dests = []
   dests_contains = (conn) ->
     for dest in dests
