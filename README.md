@@ -15,6 +15,10 @@ When your server receives a request, send an HTTP request in turn to the ```/in`
 - ```ip```: The IP Adress your server received the request from.
 - ```labels```: The list of labels you would like to associate the request with.
 - ```data```: Any auxillary data you would like to pass through to the clients.
+ 
+Create a client that connects to the dispatcher via websockets. The dispatcher responds to the following events:
+- ```register```: Provide a list of labels that you would like to receive events for.
+- ```deregister```: Provide a list of labels that you would like to stop receiving events for.
 
 Best Practice
 =============
